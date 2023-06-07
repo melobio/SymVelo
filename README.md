@@ -15,7 +15,7 @@ SymVelo consists of three modules, including the temporal difference module, the
 
 ## Installation
 
-It is recommended to create an environment with [requirement.txt](requirement.txt), Otherwise you have to be careful when installing packages like ``scvelo`` and ``scipy``. If the code does not work, please check the following versions. 
+It is recommended to create an environment with [requirement.txt](./doc/requirement.txt), Otherwise you have to be careful when installing packages like ``scvelo`` and ``scipy``. If the code does not work, please check the following versions. 
 
 ```
 torch                 1.9.0
