@@ -40,18 +40,15 @@ We modified VeloAE to better coordinate with SymNet, the modified VeloAE is in `
 ipython veloae-dentategyrus.ipynb
 ```
 
-For other datasets, we only need to adjust the parameters and the data preprocessing method (if any) in the ``.ipynb`` files.
+For other datasets, we only need to adjust the parameters and the data preprocessing method in the ``.ipynb`` files.
 ```
 # parameters
 
-'--data-dir', './data/DentateGyrus/DentateGyrus.h5ad', # the path of dataset
-'--model-name', './pretrain_model/dentategyrus_model.cpt', # the path to save pretrain model
+'--output', './pretrain_model/', # the path to save pretrain model
+'--model-name', 'dentategyrus_model.cpt', # the pretrain model's name
+'--n_raw_gene', '2000', # Number of genes to keep in the raw gene space (default: 2000)
 
-
-# preprocessing (if any)
-
-adata = scanpy.read_h5ad(args.data_dir)
-# your method
+# preprocessing
 scv.pp.neighbors(adata, n_neighbors=30, n_pcs=30)
 scv.utils.show_proportions(adata)
 scv.pp.filter_and_normalize(adata, min_shared_counts=30, n_top_genes=args.n_raw_gene)
