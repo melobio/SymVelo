@@ -50,11 +50,7 @@ parser.add_argument('--scheduler', type=str, choices=['Step', 'Lambda', 'Cosine'
 parser.add_argument('--checkpoint', type=str)
 parser.add_argument('--figures', type=str)
 # data config
-parser.add_argument('--dataset', type=str,
-                    choices=['pancreas', 'dentategyrus', 'Erythroid_human', 'Erythroid_mouse', 'scEUseq', 'scNTseq',
-                             'Multi', 'SHARE', 'Liver', 'GreenLeaf', 'Dyngen_Linear', 'Dyngen_Bifurcation',
-                             'Dyngen_Trifurcation', 'Share_new'], default='Multi',
-                    help='Dataset, if use other dataset, add name of dataset in choices')
+parser.add_argument('--dataset', type=str, default='Multi', help='Dataset')
 parser.add_argument('--gene_number', type=int, default=2000,
                     help='The number of selected genes via data preprocessing method')
 parser.add_argument('--psm', type=str, choices=['random', 'all', 'randomv2'], default='random',
@@ -117,22 +113,8 @@ if __name__ == '__main__':
     cluster_edges = []
     epochs_s = args.epochs_s
     # criterion = nn.MSELoss()
-    if args.dataset == 'pancreas':
-        adata = scanpy.read_h5ad('./dataset/endocrinogenesis_day15.5.h5ad')
-        cluster_edges = [
-            ("Ngn3 low EP", "Ngn3 high EP"),
-            ("Ngn3 high EP", "Fev+"),
-            ("Fev+", "Alpha"),
-            ("Fev+", "Beta"),
-            ("Fev+", "Delta"),
-            ("Fev+", "Epsilon")]
-        scv.pp.neighbors(adata, n_neighbors=30, n_pcs=30)
-        scv.utils.show_proportions(adata)
-        scv.pp.filter_and_normalize(adata, min_shared_counts=30, n_top_genes=args.gene_number)
-        scv.pp.moments(adata, n_pcs=30, n_neighbors=30)
-        k_cluster = "clusters"
 
-    elif args.dataset == 'dentategyrus':
+    if args.dataset == 'dentategyrus':
         adata = scv.read('./data/DentateGyrus/DentateGyrus.h5ad')
         cluster_edges = [("OPC", "OL"), ("nIPC", "Neuroblast"), ("Neuroblast", "Granule immature"),
                          ("Granule immature", "Granule mature"), ("Radial Glia-like", "Astrocytes")]
@@ -141,41 +123,6 @@ if __name__ == '__main__':
         scv.pp.filter_and_normalize(adata, min_shared_counts=30, n_top_genes=args.gene_number)
         scv.pp.moments(adata, n_pcs=30, n_neighbors=30)
 
-    elif args.dataset == 'Erythroid_mouse':
-        adata = scanpy.read_h5ad('./dataset/Erythroid_mouse.h5ad')
-        sel = np.zeros(adata.n_obs, dtype=np.bool)
-        sel = sel | (adata.obs.celltype == "Erythroid1").values | (adata.obs.celltype == "Erythroid2").values | (
-                adata.obs.celltype == "Erythroid3").values
-        sel = sel | (adata.obs.celltype == "Blood progenitors 1").values | sel | (
-                adata.obs.celltype == "Blood progenitors 2").values
-        adata = adata[sel]
-        scv.utils.show_proportions(adata)
-        scv.pp.filter_and_normalize(adata, min_shared_counts=30, n_top_genes=args.gene_number)
-        scv.pp.moments(adata, n_pcs=30, n_neighbors=30)
-        cluster_edges = [("Erythroid1", "Erythroid2"), ('Erythroid2', "Erythroid3")]
-        k_cluster = "celltype"
-
-    elif args.dataset == 'Erythroid_human':
-        adata = scanpy.read_h5ad('./dataset/Erythroid_human.h5ad')
-        sel = np.zeros(adata.n_obs, dtype=np.bool)
-        sel = sel | (adata.obs.celltype == "Early Erythroid").values | (
-                adata.obs.celltype == "Mid  Erythroid").values | (
-                      adata.obs.celltype == "Late Erythroid").values
-        sel = sel | (adata.obs.celltype == "MEMP").values
-        adata = adata[sel]
-        scv.utils.show_proportions(adata)
-        scv.pp.filter_and_normalize(adata, min_shared_counts=30, n_top_genes=args.gene_number)
-        scv.pp.moments(adata, n_pcs=30, n_neighbors=30)
-        cluster_edges = [("Early Erythroid", "Mid  Erythroid"), ('Mid  Erythroid', "Late Erythroid")]
-        k_cluster = "type2"
-
-    elif args.dataset == 'scEUseq':
-        adata = scanpy.read_h5ad('./dataset/scEUseq.h5ad')
-        cluster_edges = [("3", "1"), ("3", "2")]
-        k_cluster = "monocle_branch_id"
-        scv.utils.show_proportions(adata)
-        scv.pp.filter_and_normalize(adata, min_shared_counts=30, n_top_genes=args.gene_number)
-        scv.pp.moments(adata, n_pcs=30, n_neighbors=30)
 
     elif args.dataset == 'scNTseq':
         adata = scanpy.read_h5ad('./data/scNT/scNTseq.h5ad')
@@ -186,75 +133,12 @@ if __name__ == '__main__':
         scv.pp.filter_and_normalize(adata, min_shared_counts=30, n_top_genes=args.gene_number)
         scv.pp.moments(adata, n_pcs=30, n_neighbors=30)
 
-    elif args.dataset == 'SHARE':
-        adata = scanpy.read_h5ad('./dataset/SHARE-seq_TAC.h5ad')
-        scv.utils.show_proportions(adata)
-        # adata.obs['time'] = adata.obs.time.astype('category')
-        k_cluster = "celltype"
-        cluster_edges = [('TAC-1', 'IRS'), ('TAC-1', 'Medulla'), ('TAC-1', 'Hair Shaft-Cuticle/Cortex')]
-        scv.pp.filter_and_normalize(adata, min_shared_counts=30, n_top_genes=args.gene_number)
-        scv.pp.moments(adata, n_pcs=30, n_neighbors=30)
-
-    elif args.dataset == 'Liver':
-        cluster_edges = [("HSC_MPP", "MEMP"), ("MEMP", "Early Erythroid"), ("Early Erythroid", "Mid Erythroid"),
-                         ("Mid Erythroid", "Late Erythroid")]
-        k_cluster = "cell.labels"
-        adata = scanpy.read_h5ad('./dataset/liver_small.h5ad')
-        adata = adata[adata.obs['sample'] == 'FCAImmP7277561']
-        scv.utils.show_proportions(adata)
-        # adata.obs['time'] = adata.obs.time.astype('category')
-        scv.pp.filter_and_normalize(adata, min_shared_counts=30, n_top_genes=args.gene_number)
-        scv.pp.moments(adata, n_pcs=30, n_neighbors=30)
-
-    elif args.dataset == 'GreenLeaf':
-        adata = scanpy.read_h5ad('./data/greenleaf_multiome/greenleaf_multivelo_0525.h5ad')
-        cluster_edges = [("Cyc.", "RG/Astro"), ("Cyc.", "mGPC/OPC"), ("Cyc.", "nIPC/ExN"), ("nIPC/ExN", "ExM"),
-                         ("ExM", "ExUp")]
-        k_cluster = "cluster"
-
-    elif args.dataset == 'Share_new':
-        adata = scanpy.read_h5ad('./dataset/share_multivelo.h5ad')
-        cluster_edges = [('TAC-1', 'IRS'), ('TAC-1', 'Medulla'), ('TAC-1', 'Hair Shaft-cuticle.cortex')]
-        k_cluster = "celltype"
-
-    elif args.dataset == "Dyngen_Linear":
-        adata = scanpy.read_h5ad('./dataset/synthetic_linear_mile.h5ad')
-        k_cluster = 'milestone'
-        cluster_edges = [('A', 'B'), ('B', 'C')]
-        scv.pp.filter_and_normalize(adata, min_shared_counts=30, n_top_genes=args.gene_number)
-        scv.pp.moments(adata, n_pcs=30, n_neighbors=30)
-        adata = preprocess_data(adata)
-        args.gene_number = adata.layers['spliced'].shape[1]
-        args.g_rep_dim = adata.layers['spliced'].shape[1]
-
-    elif args.dataset == "Dyngen_Bifurcation":
-        adata = scv.read('./dataset/synthetic_bifurcation_mile.h5ad')
-        k_cluster = 'milestone'
-        cluster_edges = [('A', 'B'), ('B', 'D'), ('A', 'C'), ('C', 'E')]
-        scv.pp.filter_and_normalize(adata, min_shared_counts=30, n_top_genes=2000)
-        scv.pp.moments(adata, n_pcs=30, n_neighbors=30)
-        adata = preprocess_data(adata, filter_on_r2=False)
-        args.gene_number = adata.layers['spliced'].shape[1]
-        # args.g_rep_dim = adata.layers['spliced'].shape[1]
-
-    elif args.dataset == "Dyngen_Trifurcation":
-        adata = scanpy.read_h5ad('./dataset/synthetic_trifurcation_mile.h5ad')
-        k_cluster = "milestone"
-        cluster_edges = [('A', 'B'),
-                         ('B', 'C'), ('C', 'F'),
-                         ('B', 'D'), ('D', 'H'), ('E', 'H')]
-        scv.pp.filter_and_normalize(adata, min_shared_counts=30, n_top_genes=args.gene_number)
-        scv.pp.moments(adata, n_pcs=30, n_neighbors=30)
-        adata = preprocess_data(adata)
-        args.gene_number = adata.layers['spliced'].shape[1]
-        args.g_rep_dim = adata.layers['spliced'].shape[1]
-
     elif args.dataset == 'Multi':
 
         adata = scanpy.read_h5ad('./data/greenleaf_multiome/greenleaf_multivelo_0525.h5ad')
         cluster_edges = [("Cyc.", "RG/Astro"), ("Cyc.", "mGPC/OPC"), ("Cyc.", "nIPC/ExN"), ("nIPC/ExN", "ExM"),
                          ("ExM", "ExUp")]
-        #cluster_edges = [("Cyc.", "RG/Astro"), ("RG/Astro", "mGPC/OPC"), ("Cyc.", "nIPC/ExN"), ("nIPC/ExN", "ExM"), ("ExM", "ExUp")]
+        
         k_cluster = "cluster"
         chromatin = adata.layers['Mc']
         chromatin = chromatin.todense()
