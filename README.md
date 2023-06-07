@@ -34,10 +34,10 @@ numpy                 1.20.0
 
 ### VeloAE Pre-training
 
-We modified VeloAE to better coordinate with SymNet, the modified VeloAE is in ``VeloAE`` folder. Take the [DentateGyrus dataset](model-pancreas.ipynb) as an example, we can get a VeloAE pre-trained model, the velocity graph and metrics (ICVCoh and CBDir) via scvelo and VeloAe :
+We modified VeloAE to better coordinate with SymNet, the modified VeloAE is in ``VeloAE`` folder. Take the [DentateGyrus dataset](./veloae-dentategyrus.ipynb) as an example, we can get a VeloAE pre-trained model, the velocity graph and metrics (ICVCoh and CBDir) via scvelo and VeloAe :
 
 ```
-ipython model-pancreas.ipynb
+ipython veloae-dentategyrus.ipynb
 ```
 
 For other datasets, we only need to adjust the parameters and the data preprocessing method (if any) in the ``.ipynb`` files.
@@ -84,7 +84,7 @@ python main.py --pretrain_model ./pretrain_model/greenleaf3.cpt --use_bias True 
 
 If the parameter "forzen" set to True, we frozen VeloAE and train SymNet alone; From line 367 to line 547 and if the parameter "forzen" set to False, we train VeloAE and SymNet together, and adopt DML to further align the transition probabilities obtained from VeloAE and SymNet:
 + First of all, we sample pairs for SymNet training by the velocity calculated by the VeloAE pre-trained model. For cell $i$, cell’s expression state $x \in \mathbb{R}^{M\cdot d}$, the neighbor cells $j \in N(i)$, velocity $v$ and spliced RNAs in latent space $x^z$, we sample $(i, j)$ as a pair if the direction of truthful cellular state change from $i$ to $j$ is close to velocity $v_i$. We set three sampling methods(details in [utils.py](utils.py)): 
-    1. random: 90% probability to select $j = \mathop{\arg \max} \  \cos \langle v_i, x_j^z - x_i^z \rangle $ and 10% probability to sample a random neighbor cell as $c_j$, which result in pair $(i, j)$.
+    1. random: 90% probability to select $j = \mathop{\arg \max} \  cos \langle v_i, x_j^z - x_i^z \rangle $ and 10% probability to sample a random neighbor cell as $c_j$, which result in pair $(i, j)$.
     2. all: pair each cell with all its neighbors.
     3. randomv2: similar to random method, but sample 5 pairs with top-5 closest cells. 
 
@@ -108,18 +108,8 @@ If the parameter "forzen" set to True, we frozen VeloAE and train SymNet alone; 
 ### SymNet Results
 
 We can get the velocity graphs and the metrics of SymNet and VeloAE by checkpoint we save in [infer.py](infer.py). Some parameters should be the same as when training.  
-For scNT-seq dataset, the command corresponding to the above is (more commands and results can be found in [results.xlsx](results.xlsx) ):
+For scNT-seq dataset, the command corresponding to the above is:
 
 ```
-python infer.py --pretrain_model ./checkpoint/scNTseq/veloae_randomhigh_hl2_nb_True.pth --checkpoint ./checkpoint/scNTseq/odenet_randomhigh_hl2_nb_True.pth --psm random --frozen False --dt 1 --use_bias True --dataset scNTseq --gumbsoft_tau 5 --psd high
-```
-
-### A post-processing method for filtering genes
-
-In [filter_gene.py](filter_gene.py), we describe how to get and count Symnet's coefficients. 
-+ From line 206 to line 215, we get the coefficients of SymNet which is time-consuming, we can also read the file ``expr_dict.pkl`` to get it if save during training (read and write commands are in comments).
-+ From line 237 to line 252, we selecte the $k$ genes with the largest proportion of linear term and constant term coefficients. We hope that in this way we can remove genes that do not fit the hypothesis (like Murk), but it does not work well. You can design other rules in this part.
-
-
-
+python infer.py --pretrain_model ./pretrain_model/scNT_model.cpt --checkpoint ./checkpoint/scNTseq/odenet_randomhigh_hl2_nb_True_ep_10.pth --psm random --frozen False --dt 1 --use_bias True --dataset scNTseq --gumbsoft_tau 5 --psd high --figures ./figures/scNTseq/
 ```
