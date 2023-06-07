@@ -34,7 +34,7 @@ numpy                 1.20.0
 
 ### VeloAE Pre-training
 
-We modified VeloAE to better coordinate with SymNet, the modified VeloAE is in ``VeloAE`` folder. Take the [DentateGyrus dataset](./veloae-dentategyrus.ipynb) as an example, we can get a VeloAE pre-trained model, the velocity graph and metrics (ICVCoh and CBDir) via scvelo and VeloAe :
+We modified VeloAE to better coordinate with SymNet, the modified VeloAE is in ``VeloAE`` folder. Take the [DentateGyrus dataset](./veloae-dentategyrus.ipynb) as an example, we can get a VeloAE pre-trained model, the velocity graph and metrics (ICVCoh and CBDir) via VeloAe :
 
 ```
 ipython veloae-dentategyrus.ipynb
