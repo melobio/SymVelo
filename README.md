@@ -82,7 +82,7 @@ For greenleaf multiome dataset, the command is like:
 python main.py --pretrain_model ./pretrain_model/greenleaf3.cpt --use_bias True --epochs_s 10 --lr_v 5e-7 --lr_s 1e-4 --psm all --dt 10  --dataset Multi --gumbsoft_tau 5 --psd high --frozen False --gene_number 954 --batch_size 4000 --checkpoint ./checkpoint/Multi/
 ```
 
-If the parameter "forzen" set to True, we frozen VeloAE and train SymNet alone; From line 367 to line 547 and if the parameter "forzen" set to False, we train VeloAE and SymNet together, and adopt DML to further align the transition probabilities obtained from VeloAE and SymNet:
+If the parameter "forzen" set to True, we frozen VeloAE and train SymNet alone and if the parameter "forzen" set to False, we train VeloAE and SymNet together, and adopt DML to further align the transition probabilities obtained from VeloAE and SymNet:
 + First of all, we sample pairs for SymNet training by the velocity calculated by the VeloAE pre-trained model. For cell $i$, cell’s expression state $x \in \mathbb{R}^{M\cdot d}$, the neighbor cells $j \in N(i)$, velocity $v$ and spliced RNAs in latent space $x^z$, we sample $(i, j)$ as a pair if the direction of truthful cellular state change from $i$ to $j$ is close to velocity $v_i$. We set three sampling methods(details in [utils.py](utils.py)): 
     1. random: 90% probability to select $j = \mathop{\arg\max}\\cos\langle v_i, x_j^z - x_i^z \rangle$ and 10% probability to sample a random neighbor cell as $c_j$, which result in pair $(i, j)$.
     2. all: pair each cell with all its neighbors.
