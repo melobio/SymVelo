@@ -3,7 +3,7 @@
 SymVelo is a a dual-path framework to estimate RNA velocity, which first trains two branches of neural networks for high- and low-dimensional RNA velocities, respectively. The framework then aligns them via mutual learning. It successfully inherits the robustness from representation learning via the low-dimensional branch while preserving biological interpretability through the high-dimensional one. Furthermore, mutual learning covers all cells for each latent dimension, which provides inter-gene information on the supervision of representation learning.
 
 The framework is as follows:
-<div align=center><img width="900" src="framework.png"></div>
+![](./doc/framework.png)
 
 
 SymVelo consists of three modules, including the temporal difference module, the pre-trained representation learning module and the mutual learning module. 
@@ -15,7 +15,7 @@ SymVelo consists of three modules, including the temporal difference module, the
 
 ## Installation
 
-It is recommended to create an environment with [requirement.txt](requirement.txt), Otherwise you have to be careful when installing packages like ``scvelo`` and ``scipy``. If the code does not work, please check the following versions. For training SymVelo model, the GPU should have 11GB (GTX 1080ti). 
+It is recommended to create an environment with [requirement.txt](requirement.txt), Otherwise you have to be careful when installing packages like ``scvelo`` and ``scipy``. If the code does not work, please check the following versions. 
 
 ```
 torch                 1.9.0
@@ -34,7 +34,7 @@ numpy                 1.20.0
 
 ### VeloAE Pre-training
 
-We modified VeloAE to better coordinate with SymNet, the modified VeloAE is in ``VeloAE`` folder. Take the [pancreas dataset](model-pancreas.ipynb) as an example, we can get a VeloAE pre-trained model, the velocity graph and metrics (ICVCoh and CBDir) via scvelo and VeloAe :
+We modified VeloAE to better coordinate with SymNet, the modified VeloAE is in ``VeloAE`` folder. Take the [DentateGyrus dataset](model-pancreas.ipynb) as an example, we can get a VeloAE pre-trained model, the velocity graph and metrics (ICVCoh and CBDir) via scvelo and VeloAe :
 
 ```
 ipython model-pancreas.ipynb
@@ -44,8 +44,8 @@ For other datasets, we only need to adjust the parameters and the data preproces
 ```
 # parameters
 
-'--data-dir', './dataset/endocrinogenesis_day15.5.h5ad', # the path of dataset
-'--model-name', './pretrain_model/pancreas_test.cpt', # the path to save pretrain model
+'--data-dir', './data/DentateGyrus/DentateGyrus.h5ad', # the path of dataset
+'--model-name', './pretrain_model/dentategyrus_model.cpt', # the path to save pretrain model
 
 
 # preprocessing (if any)
@@ -66,17 +66,23 @@ We train SymNet and pre-trained VeloAE via DML method in [main.py](main.py). Eac
 pretrain_model, use_bias, epochs_s, lr_s, lr_v, psm, dt, dataset, gumbsoft_tau, psd, frozen, veloae_coef, hidden_layer_s, checkpoint.
 ```
 
-For scNT-seq dataset, the command is like (more commands and results can be found in [results.xlsx](results.xlsx) ):
+For scNT-seq dataset, the command is like:
 
 ```
-python main.py --pretrain_model ./pretrain_model/scNT_model.cpt --use_bias True --epochs_s 300 --lr_v 1e-5 --lr_s 1e-3 --psm random --dt 1  --dataset scNTseq --gumbsoft_tau 5 --psd high --frozen False
+python main.py --pretrain_model ./pretrain_model/scNT_model.cpt --use_bias True --epochs_s 10 --lr_v 1e-5 --lr_s 1e-3 --psm random --dt 1  --dataset scNTseq --gumbsoft_tau 5 --psd high --frozen False --batch_size 3000 --checkpoint ./checkpoint/scNTseq/
+```
+For DentateGyrus dataset, the command is like:
+
+```
+python main.py --pretrain_model ./pretrain_model/dentategyrus_model.cpt --use_bias True --epochs_s 450 --lr_v 1e-5 --lr_s 1e-3 --psm random --dt 1  --dataset dentategyrus --gumbsoft_tau 5 --psd high --frozen False --batch_size 3000 --checkpoint ./checkpoint/dentategyrus/
+```
+For greenleaf multiome dataset, the command is like:
+
+```
+python main.py --pretrain_model ./pretrain_model/greenleaf3.cpt --use_bias True --epochs_s 10 --lr_v 5e-7 --lr_s 1e-4 --psm all --dt 10  --dataset Multi --gumbsoft_tau 5 --psd high --frozen False --gene_number 954 --batch_size 4000 --checkpoint ./checkpoint/Multi/
 ```
 
-From line 82 to line 254, we will process the parameters:
-+ Importantly, if experimenting on other datasets, we need to add name of dataset to the choices of parameter ``dataset``(line 40) and imitate other datasets to complete data reading and preprocessing. If new datasets are Multi-omics datasets, we recommend modifying line 169-188 directly, We also show in the comments that how to rewrite in more omics. (If you have to create a new dataset branch, remember to change all code where ``if args.dataset == 'Multi':`` appear.)
-+ We define VeloAE and SymNet model from 197 to line 250, and adjust the model initialization method and loss function according to the magnitude of the loss function on different tasks in training.
-
-From line 266 to line 367, we frozen VeloAE and train SymNet alone; From line 367 to line 547, we train VeloAE and SymNet together, and adopt DML to further align the transition probabilities obtained from VeloAE and SymNet:
+If the parameter "forzen" set to True, we frozen VeloAE and train SymNet alone; From line 367 to line 547 and if the parameter "forzen" set to False, we train VeloAE and SymNet together, and adopt DML to further align the transition probabilities obtained from VeloAE and SymNet:
 + First of all, we sample pairs for SymNet training by the velocity calculated by the VeloAE pre-trained model. For cell $i$, cell’s expression state $x \in \mathbb{R}^{M\cdot d}$, the neighbor cells $j \in N(i)$, velocity $v$ and spliced RNAs in latent space $x^z$, we sample $(i, j)$ as a pair if the direction of truthful cellular state change from $i$ to $j$ is close to velocity $v_i$. We set three sampling methods(details in [utils.py](utils.py)): 
     1. random: 90% probability to select $j = \mathop{\arg \max} \  \cos \langle v_i, x_j^z - x_i^z \rangle $ and 10% probability to sample a random neighbor cell as $c_j$, which result in pair $(i, j)$.
     2. all: pair each cell with all its neighbors.
@@ -114,11 +120,6 @@ In [filter_gene.py](filter_gene.py), we describe how to get and count Symnet's c
 + From line 206 to line 215, we get the coefficients of SymNet which is time-consuming, we can also read the file ``expr_dict.pkl`` to get it if save during training (read and write commands are in comments).
 + From line 237 to line 252, we selecte the $k$ genes with the largest proportion of linear term and constant term coefficients. We hope that in this way we can remove genes that do not fit the hypothesis (like Murk), but it does not work well. You can design other rules in this part.
 
-2022/9/9
 
-main.py
-```
-parser.add_argument('--batch_size', type=int, default=2000)  # SymNet batch size
 
-parser.add_argument('--pre_model', type=str, choices=['scVelo', 'VeloAE'], default='VeloAE')  # when args.frozen == True, we can choose v from scVelo or VeloAE
 ```
