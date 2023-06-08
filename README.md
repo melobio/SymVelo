@@ -18,16 +18,19 @@ SymVelo consists of three modules, including the temporal difference module, the
 It is recommended to create an environment with [requirement.txt](./doc/requirement.txt), Otherwise you have to be careful when installing packages like ``scvelo`` and ``scipy``. If the code does not work, please check the following versions. 
 
 ```
+python                3.8.5
 torch                 1.9.0
 torch-geometric       2.0.3
-scanpy                1.8.2
-h5py                  3.6.0
-scanpy                1.8.2
-sympy                 1.10.1
+torch-scatter         2.0.9
+torch-sparse          0.6.12
+scanpy                1.7.1
+h5py                  2.10.0
+matplotlib            3.3.2
+sympy                 1.9
 scvelo                0.2.5 
-anndata               0.7.8
-numba                 0.55.1
-numpy                 1.20.0
+anndata               0.7.5
+numba                 0.51.2
+numpy                 1.19.5
 ```
 ## Data download
 You can click the link below to download the sample dataset：
