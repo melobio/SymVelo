@@ -29,12 +29,17 @@ anndata               0.7.8
 numba                 0.55.1
 numpy                 1.20.0
 ```
+## Data download
+You can click the link below to download the sample dataset：
+[Dentate Gyrus dataset](./data/DentateGyrus/README.txt)
+[greenleaf multiome dataset](./data/greenleaf_multiome/README.txt)
+[scNT-seq dataset](./data/scNT/README.txt)
 
 ## Usage
 
 ### VeloAE Pre-training
 
-We modified VeloAE to better coordinate with SymNet, the modified VeloAE is in ``VeloAE`` folder. Take the [DentateGyrus dataset](./veloae-dentategyrus.ipynb) as an example, we can get a VeloAE pre-trained model, the velocity graph and metrics (ICVCoh and CBDir) via VeloAe :
+We modified VeloAE to better coordinate with SymNet, the modified VeloAE is in ``VeloAE`` folder. Take the [Dentate Gyrus dataset](./veloae-dentategyrus.ipynb) as an example, we can get a VeloAE pre-trained model, the velocity graph and metrics (ICVCoh and CBDir) via VeloAe :
 
 ```
 ipython veloae-dentategyrus.ipynb
@@ -68,7 +73,7 @@ For scNT-seq dataset, the command is like:
 ```
 python main.py --pretrain_model ./pretrain_model/scNT_model.cpt --use_bias True --epochs_s 10 --lr_v 1e-5 --lr_s 1e-3 --psm random --dt 1  --dataset scNTseq --gumbsoft_tau 5 --psd high --frozen False --batch_size 3000 --checkpoint ./checkpoint/scNTseq/
 ```
-For DentateGyrus dataset, the command is like:
+For Dentate Gyrus dataset, the command is like:
 
 ```
 python main.py --pretrain_model ./pretrain_model/dentategyrus_model.cpt --use_bias True --epochs_s 450 --lr_v 1e-5 --lr_s 1e-3 --psm random --dt 1  --dataset dentategyrus --gumbsoft_tau 5 --psd high --frozen False --batch_size 3000 --checkpoint ./checkpoint/dentategyrus/
