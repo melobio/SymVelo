@@ -100,7 +100,7 @@ If the parameter "forzen" set to True, we frozen VeloAE and train SymNet alone a
 
 + Transition probability matrix
     1. Given cell’s expression state $x$ and $V_h$, we can obtain the transition probability matrix $P^s$(details in ``get_state_change_vector`` function of [utils.py](utils.py)).  
-    2. For cell $i$ and its neighbor cell $j \in N(i)$, $$P_{i,j}^s = \frac{1}{z_{i}} \exp \left( \cos \langle v_i, x_j - x_i \rangle\right), $$ with $z_i = \sum_{j=1}^N\exp\left( \cos \langle v_i, x_j - x_i \rangle\right)$.  
+    2. For cell $i$ and its neighbor cell $j \in N(i)$, $$P_{i,j}^s = \frac{1}{z_{i}} \exp \left( \cos \langle v_i, x_j - x_i \rangle\right), $$ with $z_i = \sum_{j=1}\exp\left( \cos \langle v_i, x_j - x_i \rangle\right)$.  
     3. Similarly, we can calculate the transition probability matrix of VeloAE $P_v$ via the cell’s expression state in latent space $x^z$ via VeloAE's encoder and $V_l$ (both $V_l$ and $x^z$ are low-dimensional).  
     4. We then adopt the symmetric Jensen-Shannon Divergence loss as the mimicry loss.
     5. We have made some optimizations in this part, but the calculation and backpropagation of the divergence loss is still a time bottleneck.
