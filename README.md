@@ -118,3 +118,11 @@ For scNT-seq dataset, the command corresponding to the above is:
 ```
 python infer.py --pretrain_model ./pretrain_model/scNT_model.cpt --checkpoint ./checkpoint/scNTseq/odenet_randomhigh_hl2_nb_True_ep_10.pth --psm random --frozen False --dt 1 --use_bias True --dataset scNTseq --gumbsoft_tau 5 --psd high --figures ./figures/scNTseq/
 ```
+For Dentate Gyrus dataset, the command corresponding to the above is:
+```
+python infer.py --pretrain_model ./pretrain_model/dentategyrus_model.cpt --checkpoint ./checkpoint/dentategyrus/odenet_randomhigh_hl2_nb_True_ep_450.pth --psm random --frozen False --dt 1 --use_bias True --dataset dentategyrus --gumbsoft_tau 5 --psd high --figures ./figures/dentategyrus/
+```
+For greenleaf multiome dataset, the command is like:
+```
+python infer.py --pretrain_model ./pretrain_model/greenleaf3.cpt --checkpoint ./checkpoint/scNTseq/odenet_allhigh_hl2_nb_True_ep_10.pth --psm all --frozen False --dt 10 --use_bias True --dataset Multi--gumbsoft_tau 5 --psd high --figures ./figures/Multi/ --gene_number 954
+```
