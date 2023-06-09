@@ -124,5 +124,5 @@ python infer.py --pretrain_model ./pretrain_model/dentategyrus_model.cpt --check
 ```
 For greenleaf multiome dataset, the command is like:
 ```
-python infer.py --pretrain_model ./pretrain_model/greenleaf3.cpt --checkpoint ./checkpoint/scNTseq/odenet_allhigh_hl2_nb_True_ep_10.pth --psm all --frozen False --dt 10 --use_bias True --dataset Multi --gumbsoft_tau 5 --psd high --figures ./figures/Multi/ --gene_number 954
+python infer.py --pretrain_model ./pretrain_model/greenleaf3.cpt --checkpoint ./checkpoint/Multi/odenet_allhigh_hl2_nb_True_ep_10.pth --psm all --frozen False --dt 10 --use_bias True --dataset Multi --gumbsoft_tau 5 --psd high --figures ./figures/Multi/ --gene_number 954
 ```
