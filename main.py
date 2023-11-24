@@ -127,7 +127,7 @@ elif args.dataset == 'scNTseq':
 elif args.dataset == 'Multi':
 
     adata = scanpy.read_h5ad('./data/greenleaf_multiome/greenleaf_multivelo_0525.h5ad')
-    cluster_edges = [("Cyc.", "RG/Astro"), ("Cyc.", "mGPC/OPC"), ("Cyc.", "nIPC/ExN"), ("nIPC/ExN", "ExM"), ("ExM", "ExUp")]
+    cluster_edges = [("Cyc.", "RG/Astro"), ("RG/Astro", "mGPC/OPC"), ("Cyc.", "nIPC/ExN"), ("nIPC/ExN", "ExM"), ("ExM", "ExUp")]
     k_cluster = "cluster"
     chromatin = adata.layers['Mc']
     chromatin = chromatin.todense()
